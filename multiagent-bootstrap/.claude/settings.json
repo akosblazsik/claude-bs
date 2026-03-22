@@ -1,0 +1,81 @@
+{
+  "agent": "orchestrator",
+  "permissions": {
+    "allow": [
+      "Bash(pnpm *)",
+      "Bash(npx biome *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vitest *)",
+      "Bash(npx playwright *)",
+      "Bash(git status)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Read",
+      "Write(app/**)",
+      "Write(components/**)",
+      "Write(lib/**)",
+      "Write(tests/**)",
+      "Write(docs/**)",
+      "Write(CLAUDE.md)",
+      "Edit(app/**)",
+      "Edit(components/**)",
+      "Edit(lib/**)",
+      "Edit(tests/**)",
+      "Edit(docs/**)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "Bash(git reset --hard *)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Read(.env.production)",
+      "Read(**/.env.local)",
+      "Read(**/credentials*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx @biomejs/biome check --write \"$CLAUDE_TOOL_INPUT_FILE_PATH\" 2>&1 | tail -5"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '--- Project Health ---' && npx tsc --noEmit 2>&1 | tail -20 && echo '--- Done ---'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "INPUT=$(cat); CMD=$(echo \"$INPUT\" | jq -r '.tool_input.command // empty'); case \"$CMD\" in *'rm -rf'*|*'--force'*|*'reset --hard'*) echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"decision\":{\"behavior\":\"block\",\"reason\":\"Destructive command blocked by project policy.\"}}}'; exit 0;; *) exit 0;; esac"
+          }
+        ]
+      }
+    ]
+  }
+}

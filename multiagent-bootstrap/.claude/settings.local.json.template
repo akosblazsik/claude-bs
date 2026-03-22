@@ -1,0 +1,4 @@
+{
+  "$schema": "https://code.claude.com/settings-schema.json",
+  "$comment": "Local overrides. Not committed to git. Copy from settings.local.json.template and rename."
+}
