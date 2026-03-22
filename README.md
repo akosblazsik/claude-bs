@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./assets/claude-bootstrap-logo.svg" alt="Claude Bootstraps logo" width="820" />
+  <img src="./assets/logo.svg" alt="Claude Bootstraps logo" width="820" />
 </p>
 
 <h1 align="center">Claude Bootstraps</h1>
